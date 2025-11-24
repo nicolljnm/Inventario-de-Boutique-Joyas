@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import smtplib
-import matplotlib.pyplot as plt
 from email.mime.text import MIMEText
 import os
 
@@ -15,11 +14,10 @@ try:
     PASSWORD_APP = st.secrets["email"]["password_app"]
     EMAIL_RECEPTOR = st.secrets["email"]["receptor"]
 except Exception:
-    # Caso de emergencia si no se cargan los secretos (solo en desarrollo local)
+    # Caso de emergencia si no se cargan los secretos
     EMAIL_EMISOR = os.environ.get("EMAIL_EMISOR", "nicolljirethnm@gmail.com")
     PASSWORD_APP = os.environ.get("PASSWORD_APP", "tu_password_de_aplicacion")
     EMAIL_RECEPTOR = os.environ.get("EMAIL_RECEPTOR", "carlojoseb05@gmail.com")
-
 
 SERVIDOR_SMTP = "smtp.gmail.com"
 PUERTO_SMTP = 587
@@ -79,32 +77,6 @@ def enviar_alerta(productos_df):
     except Exception as e:
         st.error(f"Error enviando correo. Asegúrate de que las credenciales son correctas: {e}")
 
-
-def grafico(df):
-    """Genera un gráfico de barras comparando stock actual vs stock mínimo."""
-    # Filtrar datos si es necesario (ej: excluir productos con 0 stock si no se requiere)
-    df_grafico = df.copy()
-    
-    # Crea la figura
-    fig, ax = plt.subplots(figsize=(10, 5))
-    
-    # Graficar las dos columnas
-    df_grafico.plot(kind="bar", x="Nombre", y=["Cantidad", "Stock_Minimo"], ax=ax)
-    
-    # Configuración de los ejes y título
-    plt.title("Stock Actual vs. Stock Mínimo por Producto")
-    plt.xlabel("Producto")
-    plt.ylabel("Unidades")
-    
-    # Rotar etiquetas para mejor visualización
-    plt.xticks(rotation=60, ha='right', fontsize=8) 
-    
-    # Asegurar que el layout sea ajustado
-    plt.tight_layout()
-    
-    st.pyplot(fig)
-
-
 # --- Interfaz de Usuario de Streamlit ---
 
 st.title("Inventario de Joyería")
@@ -135,7 +107,7 @@ if not df_inventario.empty:
     
     
     # 2. ALERTA DE STOCK BAJO
-    st.header("2. Alertas y Gráficos")
+    st.header("2. Alertas")
     
     # Filtrar productos con stock bajo
     productos_bajo_stock = df_inventario[
@@ -152,12 +124,7 @@ if not df_inventario.empty:
         if st.button("Enviar Alerta por Correo"):
             enviar_alerta(productos_bajo_stock)
             
-    # 3. GRÁFICO
-    st.subheader("📈 Gráfico Comparativo de Stock")
-    grafico(df_inventario)
-
-    
-    # 4. EDICIÓN Y ACTUALIZACIÓN
+    # 3. EDICIÓN Y ACTUALIZACIÓN
     st.header("3. Editar y Actualizar Inventario")
     
     # Usar el editor de datos de Streamlit
