@@ -1,2 +1,3 @@
 streamlit
 pandas
+pywin32 # Agregamos esta librería, a veces ayuda con los módulos estándar de correo.
